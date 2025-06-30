@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      background: linear-gradient(120deg, #f8fafc 0%, #e0e7ef 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 48px auto;
+      background: rgba(255,255,255,0.98);
+      padding: 44px 36px 36px 36px;
+      border-radius: 22px;
+      box-shadow: 0 12px 40px rgba(25, 118, 210, 0.13), 0 2px 8px rgba(0,0,0,0.08);
+      animation: fadeIn 0.7s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: none; }
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 32px;
+      font-size: 2.2rem;
+      color: #1a237e;
+      letter-spacing: 1px;
+    }
+    h3 {
+      margin-top: 36px;
+      color: #0d47a1;
+      font-size: 1.25rem;
+      border-left: 4px solid #1976d2;
+      padding-left: 12px;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 18px;
+      background: #f9fbfd;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(25, 118, 210, 0.09);
+      transition: box-shadow 0.2s;
+    }
+    table tbody tr {
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    table tbody tr:hover {
+      background: #e3f2fd;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+    }
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e3e8ee;
+      text-align: left;
+      font-size: 1rem;
+    }
+    th {
+      background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    button, .logout-btn {
+      padding: 8px 22px;
+      background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      outline: none;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button:hover, .logout-btn:hover {
+      background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+      box-shadow: 0 6px 20px rgba(25, 118, 210, 0.18);
+      transform: translateY(-2px) scale(1.04);
+    }
+    .logout-btn {
+      background: #fff;
+      color: #1976d2;
+      border: 2px solid #1976d2;
+      float: right;
+      margin-top: -40px;
+      margin-bottom: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border-radius: 8px;
+      box-shadow: none;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+    }
+    .logout-btn:hover {
+      background: #1976d2;
+      color: #fff;
+      border: 2px solid #1976d2;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+    }
+    .success {
+      color: #388e3c;
+      background: #e8f5e9;
+      border-left: 4px solid #43a047;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 1.08rem;
+      box-shadow: 0 2px 8px rgba(56, 142, 60, 0.08);
+      animation: fadeIn 0.5s;
+    }
+    .error {
+      color: #d32f2f;
+      background: #ffebee;
+      border-left: 4px solid #d32f2f;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 1.08rem;
+      box-shadow: 0 2px 8px rgba(211, 47, 47, 0.08);
+      animation: fadeIn 0.5s;
+    }
+    @media (max-width: 700px) {
+      .container { padding: 10px 2px; }
+      th, td { font-size: 0.95rem; padding: 8px 4px; }
+      h2 { font-size: 1.3rem; }
+      h3 { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <h2>Admin Dashboard</h2>
+    <div id="msg"></div>
+    <h3>Users</h3>
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Action</th>
+          <th>Reset Password</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>Enrolled Courses</h3>
+    <table id="enrolledTable">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Course</th>
+          <th>Progress</th>
+          <th>Certificate Date</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>Payments</h3>
+    <table id="paymentsTable">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Course</th>
+          <th>Status</th>
+          <th>Cardholder</th>
+          <th>Paid At</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    // Redirect to login if not logged in
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      window.location.href = '/api/admin';
+    }
+
+    function logout() {
+      localStorage.removeItem('adminToken');
+      window.location.href = '/api/admin';
+    }
+
+    const msg = document.getElementById('msg');
+    const tbody = document.querySelector('#usersTable tbody');
+
+    async function fetchUsers() {
+      msg.textContent = '';
+      tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+      try {
+        const res = await fetch('/api/admin/getallusers', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (!data.data.length) {
+            tbody.innerHTML = '<tr><td colspan="5">No users found</td></tr>';
+            return;
+          }
+          tbody.innerHTML = '';
+          data.data.forEach(user => {
+            const tr = document.createElement('tr');
+            let role = user.role;
+            // fallback: check if user has a roles array or is missing role
+            if (!role && Array.isArray(user.roles) && user.roles.length > 0) {
+              role = user.roles.join(', ');
+            } else if (!role) {
+              role = 'user'; // default fallback
+            }
+            // Identify as Student or Teacher using user.type if available
+            let type = '';
+            if (user.type) {
+              if (user.type.toLowerCase() === 'teacher') {
+                type = 'Teacher';
+              } else if (user.type.toLowerCase() === 'student') {
+                type = 'Student';
+              } else {
+                type = user.type;
+              }
+            } else if (role.toLowerCase().includes('teacher')) {
+              type = 'Teacher';
+            } else if (role.toLowerCase().includes('student')) {
+              type = 'Student';
+            } else {
+              type = 'Student'; // default to Student if not specified
+            }
+            tr.innerHTML = `
+              <td>${user._id}</td>
+              <td>${user.name || ''}</td>
+              <td>${user.email || ''}</td>
+              <td>${role} <span style="color:#888;font-size:12px;">(${type})</span></td>
+              <td><button onclick="deleteUser('${user._id}')">Delete</button></td>
+              <td><button onclick="showResetPassword('${user._id}')">Reset</button></td>
+            `;
+            tbody.appendChild(tr);
+    // Show reset password prompt
+    function showResetPassword(userid) {
+      const newPassword = prompt('Enter new password (min 6 chars):');
+      if (!newPassword || newPassword.length < 6) {
+        alert('Password must be at least 6 characters.');
+        return;
+      }
+      resetPassword(userid, newPassword);
+    }
+
+    async function resetPassword(userid, newPassword) {
+      msg.textContent = '';
+      try {
+        const res = await fetch(`/api/admin/reset-password/${userid}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ newPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.innerHTML = `<div class='success'>${data.message}</div>`;
+        } else {
+          msg.innerHTML = `<div class='error'>${data.message}</div>`;
+        }
+      } catch (err) {
+        msg.innerHTML = `<div class='error'>Server error</div>`;
+      }
+    }
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5">Failed to load users</td></tr>';
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5">Server error</td></tr>';
+      }
+    }
+
+    async function deleteUser(userid) {
+      if (!confirm('Are you sure you want to delete this user?')) return;
+      msg.textContent = '';
+      try {
+        const res = await fetch(`/api/admin/deleteuser/${userid}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          msg.innerHTML = `<div class='success'>${data.message}</div>`;
+          fetchUsers();
+        } else {
+          msg.innerHTML = `<div class='error'>${data.message}</div>`;
+        }
+      } catch (err) {
+        msg.innerHTML = `<div class='error'>Server error</div>`;
+      }
+    }
+
+    async function fetchEnrolled() {
+      const enrolledTbody = document.querySelector('#enrolledTable tbody');
+      enrolledTbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+      try {
+        const res = await fetch('/api/admin/enrolled-courses', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (!data.data.length) {
+            enrolledTbody.innerHTML = '<tr><td colspan="5">No enrollments found</td></tr>';
+            return;
+          }
+          enrolledTbody.innerHTML = '';
+          data.data.forEach(enroll => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${enroll.userId?.name || ''}</td>
+              <td>${enroll.userId?.email || ''}</td>
+              <td>${enroll.courseId?.title || enroll.courseId || ''}</td>
+              <td>${enroll.progress ? enroll.progress.length : 0}</td>
+              <td>${enroll.certificateDate ? new Date(enroll.certificateDate).toLocaleDateString() : ''}</td>
+            `;
+            enrolledTbody.appendChild(tr);
+          });
+        } else {
+          enrolledTbody.innerHTML = '<tr><td colspan="5">Failed to load enrollments</td></tr>';
+        }
+      } catch (err) {
+        enrolledTbody.innerHTML = '<tr><td colspan="5">Server error</td></tr>';
+      }
+    }
+
+    async function fetchPayments() {
+      const paymentsTbody = document.querySelector('#paymentsTable tbody');
+      paymentsTbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+      try {
+        const res = await fetch('/api/admin/payments', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (!data.data.length) {
+            paymentsTbody.innerHTML = '<tr><td colspan="6">No payments found</td></tr>';
+            return;
+          }
+          paymentsTbody.innerHTML = '';
+          data.data.forEach(pay => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${pay.userId?.name || ''}</td>
+              <td>${pay.userId?.email || ''}</td>
+              <td>${pay.courseId?.title || pay.courseId || ''}</td>
+              <td>${pay.status || ''}</td>
+              <td>${pay.cardDetails?.cardholdername || ''}</td>
+              <td>${pay.createdAt ? new Date(pay.createdAt).toLocaleString() : ''}</td>
+            `;
+            paymentsTbody.appendChild(tr);
+          });
+        } else {
+          paymentsTbody.innerHTML = '<tr><td colspan="6">Failed to load payments</td></tr>';
+        }
+      } catch (err) {
+        paymentsTbody.innerHTML = '<tr><td colspan="6">Server error</td></tr>';
+      }
+    }
+
+    fetchUsers();
+    fetchEnrolled();
+    fetchPayments();
+  </script>
+</body>
+</html>
